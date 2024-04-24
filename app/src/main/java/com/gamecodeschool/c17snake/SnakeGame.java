@@ -1,6 +1,8 @@
 package com.gamecodeschool.c17snake;
 import android.annotation.SuppressLint;
+
 import android.content.Context;
+
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
@@ -14,11 +16,23 @@ import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+
 import java.io.IOException;
+
+import java.util.ArrayList;
+import java.util.Collections;
+
+
+import android.content.SharedPreferences;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+
 
 @SuppressLint("ViewConstructor")
 public class SnakeGame extends SurfaceView implements Runnable, GameObject {
@@ -30,6 +44,8 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
     private Bitmap backgroundBitmap;
     private Bitmap mPauseButtonBitmap;
     private Bitmap munPauseButtonBitmap;
+
+    private Bitmap mLeaderboardButtonBitmap;
 
     private Thread mThread = null;
     private long mNextFrameTime;
@@ -49,8 +65,14 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
     private volatile boolean mGameJustStarted = false;
 
 
+    // testing vars
+    private ArrayList<Integer> scores = new ArrayList<>();
+
+    private boolean mDisplayLeaderboard = false;
+
     public SnakeGame(Context context, Point size) {
         super(context);
+        mContext = context;
         initializeGame(context, size);
     }
 
@@ -66,7 +88,12 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
         mPauseButtonBitmap = Bitmap.createScaledBitmap(mPauseButtonBitmap, 100, 100, false);
         munPauseButtonBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.unpause_button);
         munPauseButtonBitmap = Bitmap.createScaledBitmap(munPauseButtonBitmap, 100, 100, false);
+        mLeaderboardButtonBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.leaderboard_button);
+        mLeaderboardButtonBitmap = Bitmap.createScaledBitmap(mLeaderboardButtonBitmap, 100, 100, false);
 
+        if (scores == null) {
+            scores = new ArrayList<>();
+        }
     }
 
     private void initializeSoundPool(Context context) {
@@ -142,6 +169,7 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
             mSP.play(mCrashID, 1, 1, 0, 0, 1);
             mPaused = true;
             mGameStarted = false;
+            saveScore(mScore);
         }
     }
 
@@ -158,12 +186,40 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
             Bitmap scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, canvasWidth, canvasHeight, true);
             mCanvas.drawBitmap(scaledBitmap, 0, 0, null);
 
-            int x = mCanvas.getWidth() - mPauseButtonBitmap.getWidth() - 20;
-            int y = 20;
+            int x = mCanvas.getWidth() - mPauseButtonBitmap.getWidth() - 20; // 20 pixels from the right
+            int y = 20; // 20 pixels from the top
             if (mPaused) {
                 mCanvas.drawBitmap(munPauseButtonBitmap, x, y, null);
             } else {
                 mCanvas.drawBitmap(mPauseButtonBitmap, x, y, null);
+            }
+
+            int leaderboardX = mCanvas.getWidth() - mLeaderboardButtonBitmap.getWidth() - 200;
+
+            if (!mGameStarted || !mPlaying) {
+                mCanvas.drawBitmap(mLeaderboardButtonBitmap, leaderboardX, y, null);
+            }
+
+            if (mDisplayLeaderboard) {
+                // Sort the scores in descending order
+                ArrayList<Integer> sortedScores = new ArrayList<>(scores);
+                Collections.sort(sortedScores, Collections.reverseOrder());
+
+                // the top 10 scores
+                mPaint.setColor(Color.argb(255, 0, 0, 0));
+                mPaint.setTextSize(70); // Increase text size
+
+                mCanvas.drawText("Top 10 High Scores", mCanvas.getWidth() / 4f, 100, mPaint);
+
+                for (int i = 0; i < Math.min(10, sortedScores.size()); i++) {
+                    String scoreText = "Score " + (i + 1) + ": " + sortedScores.get(i);
+                    float x2 = mCanvas.getWidth() / 4f;
+                    float y2 = mCanvas.getHeight() / 2f + i * 80;
+                    mCanvas.drawText(scoreText, x2, y2, mPaint);
+                }
+
+                // "Tap to start new game" at the bottom of the screen
+                mCanvas.drawText("Tap to start new game", mCanvas.getWidth() / 4f, mCanvas.getHeight() - 100, mPaint);
             }
 
             Typeface typeface = Typeface.createFromAsset(getContext().getAssets(), "myfont.ttf");
@@ -187,9 +243,36 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
             mSurfaceHolder.unlockCanvasAndPost(mCanvas);
         }
     }
+    private void saveScore(int mScore) {
+        // Load scores from SharedPreferences
+        SharedPreferences sharedPreferences = mContext.getSharedPreferences("MySharedPref", Context.MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString("scores", null);
+        Type type = new TypeToken<ArrayList<Integer>>() {}.getType();
+        scores = gson.fromJson(json, type);
+
+        if (scores == null) {
+            scores = new ArrayList<>();
+        }
+
+        // Add the new score
+        if (mScore > 0) {
+            scores.add(mScore);
+        }
+
+        // Save scores to SharedPreferences
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        json = gson.toJson(scores);
+        editor.putString("scores", json);
+        editor.apply();
+    }
+    private void printLeaderboard() {
+        Log.d("Leaderboard", "Scores: " + scores);
+    }
 
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
+        // If the game is paused and not started, start the game
         if (mPaused && !mGameStarted) {
             mGameStarted = true;
 
@@ -197,8 +280,12 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
                 mGameJustStarted = false;
             }
         }
+
+        // Get the x and y coordinates of the touch event
         int x = (int) motionEvent.getX();
         int y = (int) motionEvent.getY();
+
+        // Calculate the position and dimensions of the pause button on the screen
         int canvasWidth = getWidth();
         int canvasHeight = getHeight();
         int pauseButtonX = canvasWidth - mPauseButtonBitmap.getWidth() - 20;
@@ -206,20 +293,35 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
         int pauseButtonWidth = mPauseButtonBitmap.getWidth();
         int pauseButtonHeight = mPauseButtonBitmap.getHeight();
 
+        // Check the action of the touch event
         switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_UP:
+                // If the touch event occurred within the bounds of the pause button, toggle the pause state
                 if (x >= pauseButtonX && x <= (pauseButtonX + pauseButtonWidth) && y >= pauseButtonY && y <= (pauseButtonY + pauseButtonHeight)) {
                     mPaused = !mPaused;
-                } else if (!mGameJustStarted || !mPlaying) {
+                }
+                else if (x >= canvasWidth - mLeaderboardButtonBitmap.getWidth() - 200 && x <= (canvasWidth - 200) && y >= 20 && y <= 120) {
+                    Log.d("Leaderboard", "Leaderboard button clicked");
+                    printLeaderboard();
+                    mDisplayLeaderboard = true;
+                }
+                // If the touch event did not occur within the bounds of the pause button, and the game has just started or is not playing, unpause the game and start a new game
+                else if (!mGameJustStarted || !mPlaying) {
                     mPaused = false;
+                    mDisplayLeaderboard = false;
                     newGame();
-                } else if (!mPaused){
+                }
+                // If the game is not paused, change the direction of the snake based on the position of the touch event
+                else if (!mPaused){
                     mSnake.switchHeading(motionEvent);
                 }
                 return true;
         }
         return true;
     }
+
+    //testing leaderboard stuff here
+
 
     public void pause() {
         mPlaying = false;
