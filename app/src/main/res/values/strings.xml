@@ -1,4 +1,8 @@
 <resources>
+    <string name="game_title">SANDS OF SERPENTS</string>
+    <string name="play_game">Play Game</string>
+    <string name="leaderboard">Leaderboard</string>
+    <string name="credits">Credits</string>
     <string name="tap_to_play">Tap to Play!</string>
 
 </resources>

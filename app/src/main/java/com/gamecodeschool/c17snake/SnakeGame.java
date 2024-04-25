@@ -48,6 +48,7 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
     private boolean mGameStarted = false;
     private volatile boolean mGameJustStarted = false;
 
+    private boolean mGameOver = false;
 
     public SnakeGame(Context context, Point size) {
         super(context);
@@ -150,11 +151,11 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
             mCanvas = mSurfaceHolder.lockCanvas();
             // background adding code
             if (backgroundBitmap == null) {
-                backgroundBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.background_image1);
+                backgroundBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.start_background1);
             }
             int canvasWidth = mCanvas.getWidth();
             int canvasHeight = mCanvas.getHeight();
-            Bitmap originalBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.background_image1);
+            Bitmap originalBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.start_background1);
             Bitmap scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, canvasWidth, canvasHeight, true);
             mCanvas.drawBitmap(scaledBitmap, 0, 0, null);
 
@@ -187,7 +188,10 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
             mSurfaceHolder.unlockCanvasAndPost(mCanvas);
         }
     }
-
+    private void gameOver() {
+        mGameOver = true;
+        // any additional game over logic here
+    }
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
         if (mPaused && !mGameStarted) {
@@ -244,9 +248,19 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
 
     @Override
     public void update(Point size) {
+        super.draw(mCanvas);  // Call the superclass method first
+
+        if (mGameOver) {
+            Paint paint = new Paint();
+            paint.setColor(Color.RED);
+            paint.setTextSize(90);
+            paint.setTextAlign(Paint.Align.CENTER);
+            mCanvas.drawText("GAME OVER", mCanvas.getWidth() / 2, mCanvas.getHeight() / 2, paint);
+        } else {
         int blockSize = size.x / NUM_BLOCKS_WIDE;
         mNumBlocksHigh = size.y / blockSize;
         mApple.update(size);
         mSnake.update(size);
     }
+}
 }
