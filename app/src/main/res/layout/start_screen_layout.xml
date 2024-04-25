@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/start_background1">
+
+    <TextView
+        android:id="@+id/title_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/game_title"
+        android:fontFamily="@font/game_title_font"
+        android:textSize="60dp"
+        android:textColor="@color/title_text_color"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="130dp"
+        android:textStyle="bold" />
+
+    <!-- Play Game option -->
+    <TextView
+        android:id="@+id/play_game"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/play_game"
+        android:fontFamily="@font/button_font"
+        android:textSize="30dp"
+        android:textColor="@color/menu_option_text_color"
+        android:layout_below="@id/title_text"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:onClick="onPlayGameClick" />
+
+    <!-- Leaderboard option -->
+    <TextView
+        android:id="@+id/leaderboard_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/leaderboard"
+        android:fontFamily="@font/button_font"
+        android:textSize="30dp"
+        android:textColor="@color/menu_option_text_color"
+        android:layout_below="@id/play_game"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:onClick="onLeaderboardClick" />
+
+    <!-- Credits option -->
+    <TextView
+        android:id="@+id/credits_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/credits"
+        android:fontFamily="@font/button_font"
+        android:textSize="30dp"
+        android:textColor="@color/menu_option_text_color"
+        android:layout_below="@id/leaderboard_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:onClick="onCreditsClick" />
+
+</RelativeLayout>
