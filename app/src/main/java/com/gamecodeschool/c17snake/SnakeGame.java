@@ -205,6 +205,11 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
                 ArrayList<Integer> sortedScores = new ArrayList<>(scores);
                 Collections.sort(sortedScores, Collections.reverseOrder());
 
+                // Set the custom font
+                Typeface typeface = Typeface.createFromAsset(getContext().getAssets(), "Dune_Rise.ttf");
+                mPaint.setTypeface(typeface);
+                mPaint.setFakeBoldText(true);
+
                 // the top 10 scores
                 mPaint.setColor(Color.argb(255, 0, 0, 0));
                 mPaint.setTextSize(70); // Increase text size
