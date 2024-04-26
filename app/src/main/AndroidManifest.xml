@@ -12,7 +12,6 @@
 
         <!-- StartScreenActivity is the new main entry point -->
         <activity android:name=".StartScreenActivity"
-            android:label="@string/tap_to_play"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             android:screenOrientation="landscape"
             android:exported="true">
