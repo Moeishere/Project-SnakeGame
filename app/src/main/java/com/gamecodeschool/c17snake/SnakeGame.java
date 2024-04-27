@@ -14,6 +14,7 @@ import android.graphics.Point;
 import android.graphics.Typeface;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Build;
 import android.util.Log;
@@ -52,8 +53,11 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
     private volatile boolean mPlaying = false;
     private volatile boolean mPaused = true;
     private SoundPool mSP;
+    private MediaPlayer mMMP;
+    private MediaPlayer mGMP;
     private int mEat_ID = -1;
     private int mCrashID = -1;
+    private int mRockID = -1;
     private int mNumBlocksHigh;
     private int mScore;
     private Canvas mCanvas;
@@ -61,6 +65,7 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
     private Paint mPaint;
     private Snake mSnake;
     private Apple mApple;
+    private Obstacle mObstacle;
     private boolean mGameStarted = false;
     private volatile boolean mGameJustStarted = false;
 
@@ -80,9 +85,12 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
         int blockSize = size.x / NUM_BLOCKS_WIDE;
         mNumBlocksHigh = size.y / blockSize;
         initializeSoundPool(context);
+        initializeMenuMediaPlayer(context);
+        initializeGameMediaPlayer(context);
         mSurfaceHolder = getHolder();
         mPaint = new Paint();
         mApple = new Apple(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
+        mObstacle = new Obstacle(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
         mSnake = new Snake(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
         mPauseButtonBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.pause_button);
         mPauseButtonBitmap = Bitmap.createScaledBitmap(mPauseButtonBitmap, 100, 100, false);
@@ -113,28 +121,82 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
         loadSoundFiles(context);
     }
 
+    private void initializeMenuMediaPlayer(Context context) {
+        mMMP = new MediaPlayer();
+        try {
+            AssetFileDescriptor descriptor = context.getAssets().openFd("menu_music.mp3");
+            mMMP.setDataSource(descriptor.getFileDescriptor(), descriptor.getStartOffset(), descriptor.getLength());
+            descriptor.close();
+            mMMP.setLooping(true); // Loop the menu music
+            mMMP.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void initializeGameMediaPlayer(Context context) {
+        mGMP = new MediaPlayer();
+        try {
+            AssetFileDescriptor descriptor = context.getAssets().openFd("ingame_music.mp3");
+            mGMP.setDataSource(descriptor.getFileDescriptor(), descriptor.getStartOffset(), descriptor.getLength());
+            descriptor.close();
+            mGMP.setLooping(true); // Loop the menu music
+            mGMP.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void loadSoundFiles(Context context) {
         try {
             AssetManager assetManager = context.getAssets();
             AssetFileDescriptor descriptor;
 
-            descriptor = assetManager.openFd("get_apple.ogg");
+            descriptor = assetManager.openFd("snake_eat.mp3");
             mEat_ID = mSP.load(descriptor, 0);
-            descriptor = assetManager.openFd("snake_death.ogg");
+            descriptor = assetManager.openFd("snake_death.mp3");
             mCrashID = mSP.load(descriptor, 0);
+            descriptor = assetManager.openFd("rock_destroy.mp3");
+            mRockID = mSP.load(descriptor, 0);
 
         } catch (IOException e) {
             // Log the exception
+            Log.d("error", "failed to load sound files");
+        }
+    }
+
+    private void playMenuMusic() {
+        if (mMMP != null && !mMMP.isPlaying()) {
+            mMMP.start();
+        }
+    }
+
+    private void stopMenuMusic() {
+        if (mMMP != null && mMMP.isPlaying()) {
+            mMMP.pause();
+        }
+    }
+
+    private void playGameMusic() {
+        if (mGMP != null && !mGMP.isPlaying()) {
+            mGMP.start();
+        }
+    }
+
+    private void stopGameMusic() {
+        if (mGMP != null && mGMP.isPlaying()) {
+            mGMP.pause();
         }
     }
 
     public void newGame() {
         mSnake.reset(NUM_BLOCKS_WIDE, mNumBlocksHigh);
         mApple.spawn();
+        mObstacle.spawn();
         mScore = 0;
         mNextFrameTime = System.currentTimeMillis();
         mGameJustStarted = true;
-
+        playGameMusic();
     }
 
     @Override
@@ -165,12 +227,26 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
             mSP.play(mEat_ID, 1, 1, 0, 0, 1);
         }
 
+        if (mSnake.checkRock(mObstacle.getLocation())) {
+            mObstacle.spawn();
+            mScore = mScore - 1;
+            mSP.play(mRockID, 1, 1, 0, 0, 1);
+        }
+
         if (mSnake.detectDeath()) {
+            stopGameMusic();
             mSP.play(mCrashID, 1, 1, 0, 0, 1);
             mPaused = true;
             mGameStarted = false;
             saveScore(mScore);
         }
+
+        if (!mGMP.isPlaying()) {
+            playMenuMusic();
+        } else {
+            stopMenuMusic();
+        }
+
     }
 
     public void draw() {
@@ -239,6 +315,7 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
             mCanvas.drawText("Final Project:Group 34", 1800, 990, mPaint);
             mPaint.setFakeBoldText(false);
             mApple.draw(mCanvas, mPaint);
+            mObstacle.draw(mCanvas, mPaint);
             mSnake.draw(mCanvas, mPaint);
             if (mPaused && !mGameStarted) {
                 mPaint.setColor(Color.argb(255, 0, 0, 0));
@@ -346,6 +423,7 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
     @Override
     public void draw(Canvas canvas, Paint paint) {
         mApple.draw(canvas, paint);
+        mObstacle.draw(canvas, paint);
         mSnake.draw(canvas, paint);
     }
 
@@ -354,6 +432,7 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
         int blockSize = size.x / NUM_BLOCKS_WIDE;
         mNumBlocksHigh = size.y / blockSize;
         mApple.update(size);
+        mObstacle.update(size);
         mSnake.update(size);
     }
 }

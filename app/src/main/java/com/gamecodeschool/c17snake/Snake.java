@@ -110,6 +110,20 @@ public class Snake implements GameObject, Movable, Drawable{
         return false;
     }
 
+    boolean checkRock(Point l) {
+        if (segmentLocations.size() <= 1) {
+            // If the snake has only one segment (the head), do not remove any segment
+            return false;
+        }
+        if (segmentLocations.get(0).x == l.x && segmentLocations.get(0).y == l.y) {
+            // Remove the last segment from the snake
+            segmentLocations.remove(segmentLocations.size() - 1);
+            return true;
+        }
+        return false;
+    }
+
+
     @Override
     public void draw(Canvas canvas, Paint paint) {
         if (!segmentLocations.isEmpty()) {
