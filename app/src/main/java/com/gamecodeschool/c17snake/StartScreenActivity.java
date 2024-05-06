@@ -20,7 +20,6 @@ public class StartScreenActivity extends Activity {
         // Intent to start SnakeActivity (or your main game activity)
         Intent intent = new Intent(this, SnakeActivity.class);
         startActivity(intent);
-        // Optional: finish StartScreenActivity if you don't want it to appear when the user presses back from the game
         finish();
     }
 
@@ -33,7 +32,6 @@ public class StartScreenActivity extends Activity {
     public void onCreditsClick(View view) {
         AlertDialog.Builder creditsDialog = new AlertDialog.Builder(this);
         creditsDialog.setTitle("Credits");
-
         String message = "This is a basic 2D snake game that has been greatly improved with the principles of OOP. " +
                 "We have added numerous features and enhanced the appearance to bring you a better gaming experience. " +
                 "\n\nFinal Project Group 34:\n" +
@@ -46,10 +44,8 @@ public class StartScreenActivity extends Activity {
         creditsDialog.setMessage(message);
         creditsDialog.setPositiveButton("OK", (dialog, id) -> {
         });
-
         AlertDialog dialog = creditsDialog.create();
         dialog.show();
     }
-
 }
 
