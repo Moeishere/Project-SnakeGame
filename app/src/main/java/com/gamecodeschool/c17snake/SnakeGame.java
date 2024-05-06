@@ -1,8 +1,10 @@
 package com.gamecodeschool.c17snake;
 import android.annotation.SuppressLint;
 
+import android.app.Activity;
 import android.content.Context;
 
+import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
@@ -63,7 +65,7 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
     private Apple mApple;
     private boolean mGameStarted = false;
     private volatile boolean mGameJustStarted = false;
-
+    private boolean mGameOver = false;
 
     // testing vars
     private ArrayList<Integer> scores = new ArrayList<>();
@@ -134,13 +136,13 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
         mScore = 0;
         mNextFrameTime = System.currentTimeMillis();
         mGameJustStarted = true;
-
+        mGameOver = false; // Reset game over state for a new game
     }
 
     @Override
     public void run() {
         while (mPlaying) {
-            if (!mPaused) {
+            if (!mPaused && !mGameOver) {
                 if (updateRequired()) {
                     update();
                 }
@@ -167,27 +169,35 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
 
         if (mSnake.detectDeath()) {
             mSP.play(mCrashID, 1, 1, 0, 0, 1);
-            mPaused = true;
-            mGameStarted = false;
-            saveScore(mScore);
+            gameOver(); // Directly call gameOver method
+            //mPaused = true;
+            //mGameStarted = false;
+            //saveScore(mScore);
         }
     }
 
     public void draw() {
         if (mSurfaceHolder.getSurface().isValid()) {
             mCanvas = mSurfaceHolder.lockCanvas();
+            if (mGameOver) {
+                displayGameOver(mCanvas, mPaint);
+                mSurfaceHolder.unlockCanvasAndPost(mCanvas);
+                return; // Prevent further drawing if the game is over
+            }
+
             // background adding code
             if (backgroundBitmap == null) {
-                backgroundBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.background_image1);
+                backgroundBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.gamebackground);
             }
             int canvasWidth = mCanvas.getWidth();
             int canvasHeight = mCanvas.getHeight();
-            Bitmap originalBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.background_image1);
+            Bitmap originalBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.gamebackground);
             Bitmap scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, canvasWidth, canvasHeight, true);
             mCanvas.drawBitmap(scaledBitmap, 0, 0, null);
 
             int x = mCanvas.getWidth() - mPauseButtonBitmap.getWidth() - 20; // 20 pixels from the right
             int y = 20; // 20 pixels from the top
+
             if (mPaused) {
                 mCanvas.drawBitmap(munPauseButtonBitmap, x, y, null);
             } else {
@@ -240,10 +250,13 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
             mPaint.setFakeBoldText(false);
             mApple.draw(mCanvas, mPaint);
             mSnake.draw(mCanvas, mPaint);
-            if (mPaused && !mGameStarted) {
-                mPaint.setColor(Color.argb(255, 0, 0, 0));
-                mPaint.setTextSize(200);
-                mCanvas.drawText(getResources().getString(R.string.tap_to_play), 650, 650, mPaint);
+
+            if (isGameOver()) {
+                mPaint.setTextSize(100);
+                mCanvas.drawText(getResources().getString(R.string.game_over_text), 750, 600, mPaint);
+            } else if (mPaused) {
+                mPaint.setTextSize(100);
+                mCanvas.drawText(getResources().getString(R.string.game_paused_text), 750, 600, mPaint);
             }
             mSurfaceHolder.unlockCanvasAndPost(mCanvas);
         }
@@ -274,13 +287,41 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
     private void printLeaderboard() {
         Log.d("Leaderboard", "Scores: " + scores);
     }
+    private void displayGameOver(Canvas canvas, Paint paint) {
+        paint.setColor(Color.WHITE);
+        paint.setTextSize(100);
+        paint.setTextAlign(Paint.Align.CENTER);
+        int yPos = (int) ((canvas.getHeight() / 2) - ((paint.descent() + paint.ascent()) / 2));
+    }
+    public boolean isGameOver() {
+        return mGameOver;
+    }
+    private void gameOver() {
+        mGameOver = true;
+        mPlaying = false;
+        mPaused = true;
+
+        if (getContext() instanceof Activity) {
+            Activity activity = (Activity) getContext();
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Intent intent = new Intent(activity, GameOverActivity.class);
+                    activity.startActivity(intent);
+                    activity.finish();
+                }
+            });
+        }
+    }
 
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
-        // If the game is paused and not started, start the game
+        if (isGameOver()) {
+            return true;
+        }
+
         if (mPaused && !mGameStarted) {
             mGameStarted = true;
-
             if (mGameJustStarted) {
                 mGameJustStarted = false;
             }
@@ -355,5 +396,17 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
         mNumBlocksHigh = size.y / blockSize;
         mApple.update(size);
         mSnake.update(size);
+        mSnake.move();
+        if (mSnake.checkDinner(mApple.getLocation())) {
+            mApple.spawn();
+            mScore += 1;
+            mSP.play(mEat_ID, 1, 1, 0, 0, 1);
+        }
+
+        if (mSnake.detectDeath()) {
+            mSP.play(mCrashID, 1, 1, 0, 0, 1);
+            gameOver();
+        }
+
     }
 }
