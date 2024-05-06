@@ -370,7 +370,7 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
     public boolean isGameOver() {
         return mGameOver;
     }
-    private void gameOver() {
+    void gameOver() {
         mGameOver = true;
         mPlaying = false;
         mPaused = true;
@@ -380,8 +380,16 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    // Create an Intent to transition to the GameOverActivity
                     Intent intent = new Intent(activity, GameOverActivity.class);
+
+                    // Pass the score to the GameOverActivity
+                    intent.putExtra("SCORE", mScore);
+
+                    // Start the GameOverActivity
                     activity.startActivity(intent);
+
+                    // Finish the current activity
                     activity.finish();
                 }
             });
