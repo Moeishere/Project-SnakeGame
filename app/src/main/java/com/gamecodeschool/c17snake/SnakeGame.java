@@ -16,9 +16,7 @@ import android.graphics.Point;
 import android.media.MediaPlayer;
 import android.graphics.Typeface;
 import android.media.AudioAttributes;
-import android.media.AudioManager;
 import android.media.SoundPool;
-import android.os.Build;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -37,13 +35,14 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 
 
+
 @SuppressLint("ViewConstructor")
 public class SnakeGame extends SurfaceView implements Runnable, GameObject {
     private static final int NUM_BLOCKS_WIDE = 40;
     private static final int TARGET_FPS = 10;
     private static final long MILLIS_PER_SECOND = 1000;
 
-    private Context mContext;
+    private final Context mContext;
     private Bitmap backgroundBitmap;
     private Bitmap mPauseButtonBitmap;
     private Bitmap munPauseButtonBitmap;
@@ -62,7 +61,6 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
     private int mRockID = -1;
     private int mNumBlocksHigh;
     private int mScore;
-    private Canvas mCanvas;
     private SurfaceHolder mSurfaceHolder;
     private Paint mPaint;
     private Snake mSnake;
@@ -107,19 +105,15 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
     }
 
     private void initializeSoundPool(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            AudioAttributes audioAttributes = new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .build();
+        AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build();
 
-            mSP = new SoundPool.Builder()
-                    .setMaxStreams(5)
-                    .setAudioAttributes(audioAttributes)
-                    .build();
-        } else {
-            mSP = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
-        }
+        mSP = new SoundPool.Builder()
+                .setMaxStreams(5)
+                .setAudioAttributes(audioAttributes)
+                .build();
         loadSoundFiles(context);
     }
 
@@ -238,9 +232,9 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
             stopGameMusic();
             mSP.play(mCrashID, 1, 1, 0, 0, 1);
             gameOver(); // Directly call gameOver method
-            //mPaused = true;
-            //mGameStarted = false;
-            //saveScore(mScore);
+            mPaused = true;
+            mGameStarted = false;
+            saveScore(mScore);
         }
         if (!mGMP.isPlaying()) {
             playMenuMusic();
@@ -251,7 +245,7 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
 
     public void draw() {
         if (mSurfaceHolder.getSurface().isValid()) {
-            mCanvas = mSurfaceHolder.lockCanvas();
+            Canvas mCanvas = mSurfaceHolder.lockCanvas();
             if (mGameOver) {
                 displayGameOver(mCanvas, mPaint);
                 mSurfaceHolder.unlockCanvasAndPost(mCanvas);
@@ -286,7 +280,7 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
             if (mDisplayLeaderboard) {
                 // Sort the scores in descending order
                 ArrayList<Integer> sortedScores = new ArrayList<>(scores);
-                Collections.sort(sortedScores, Collections.reverseOrder());
+                sortedScores.sort(Collections.reverseOrder());
 
                 // Set the custom font
                 Typeface typeface = Typeface.createFromAsset(getContext().getAssets(), "Dune_Rise.ttf");
@@ -377,25 +371,23 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
 
         if (getContext() instanceof Activity) {
             Activity activity = (Activity) getContext();
-            activity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    // Create an Intent to transition to the GameOverActivity
-                    Intent intent = new Intent(activity, GameOverActivity.class);
+            activity.runOnUiThread(() -> {
+                // Create an Intent to transition to the GameOverActivity
+                Intent intent = new Intent(activity, GameOverActivity.class);
 
-                    // Pass the score to the GameOverActivity
-                    intent.putExtra("SCORE", mScore);
+                // Pass the score to the GameOverActivity
+                intent.putExtra("SCORE", mScore);
 
-                    // Start the GameOverActivity
-                    activity.startActivity(intent);
+                // Start the GameOverActivity
+                activity.startActivity(intent);
 
-                    // Finish the current activity
-                    activity.finish();
-                }
+                // Finish the current activity
+                activity.finish();
             });
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
         if (isGameOver()) {
@@ -422,28 +414,25 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
         int pauseButtonHeight = mPauseButtonBitmap.getHeight();
 
         // Check the action of the touch event
-        switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
-            case MotionEvent.ACTION_UP:
-                // If the touch event occurred within the bounds of the pause button, toggle the pause state
-                if (x >= pauseButtonX && x <= (pauseButtonX + pauseButtonWidth) && y >= pauseButtonY && y <= (pauseButtonY + pauseButtonHeight)) {
-                    mPaused = !mPaused;
-                }
-                else if (x >= canvasWidth - mLeaderboardButtonBitmap.getWidth() - 200 && x <= (canvasWidth - 200) && y >= 20 && y <= 120) {
-                    Log.d("Leaderboard", "Leaderboard button clicked");
-                    printLeaderboard();
-                    mDisplayLeaderboard = true;
-                }
-                // If the touch event did not occur within the bounds of the pause button, and the game has just started or is not playing, unpause the game and start a new game
-                else if (!mGameJustStarted || !mPlaying) {
-                    mPaused = false;
-                    mDisplayLeaderboard = false;
-                    newGame();
-                }
-                // If the game is not paused, change the direction of the snake based on the position of the touch event
-                else if (!mPaused){
-                    mSnake.switchHeading(motionEvent);
-                }
-                return true;
+        if ((motionEvent.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {// If the touch event occurred within the bounds of the pause button, toggle the pause state
+            if (x >= pauseButtonX && x <= (pauseButtonX + pauseButtonWidth) && y >= pauseButtonY && y <= (pauseButtonY + pauseButtonHeight)) {
+                mPaused = !mPaused;
+            } else if (x >= canvasWidth - mLeaderboardButtonBitmap.getWidth() - 200 && x <= (canvasWidth - 200) && y >= 20 && y <= 120) {
+                Log.d("Leaderboard", "Leaderboard button clicked");
+                printLeaderboard();
+                mDisplayLeaderboard = true;
+            }
+            // If the touch event did not occur within the bounds of the pause button, and the game has just started or is not playing, unpause the game and start a new game
+            else if (!mGameJustStarted || !mPlaying) {
+                mPaused = false;
+                mDisplayLeaderboard = false;
+                newGame();
+            }
+            // If the game is not paused, change the direction of the snake based on the position of the touch event
+            else if (!mPaused) {
+                mSnake.switchHeading(motionEvent);
+            }
+            return true;
         }
         return true;
     }

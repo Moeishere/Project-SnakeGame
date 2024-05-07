@@ -1,28 +1,55 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- leaderboard_layout.xml -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:background="@drawable/gamebackground">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/back_button"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:fontFamily="@font/game_title_font"
+        android:minHeight="48dp"
+        android:onClick="goBackToStartScreen"
+        android:text="@string/back_leaderboard_text"
+        android:textColor="@color/leaderbaord_section_color"
+        android:textSize="18sp"
+        android:focusable="true" />
 
-        <TextView
-            android:id="@+id/leaderboard_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Leaderboard"
-            android:textSize="24sp"
-            android:textStyle="bold" />
+    <TextView
+        android:id="@+id/leaderboard_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/game_title_font"
+        android:text="@string/leaderboard1"
+        android:textSize="50sp"
+        android:textStyle="bold"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="25dp"
+        android:textColor="@color/leaderbaord_section_color" />
+    <TextView
+        android:id="@+id/top_10_scores_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/top_10_scores_text"
+        android:textSize="40sp"
+        android:fontFamily="@font/game_title_font"
+        android:layout_below="@id/leaderboard_title"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"
+        android:textColor="@color/leaderbaord_section_color" />
 
-        <TextView
-            android:id="@+id/leaderboard_scores"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="16sp" />
-
-    </LinearLayout>
-
-</ScrollView>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/leaderboard_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@id/top_10_scores_text"
+        android:layout_marginTop="16dp"
+        android:padding="16dp" />
+</RelativeLayout>

@@ -9,5 +9,7 @@
     <string name="home_text">Return to Home</string>
     <string name="score_text">SCORE: %1$d</string>
     <string name="game_paused_text">GAME PAUSED</string>
+    <string name="back_leaderboard_text">BACK TO MAIN MENU</string>
+    <string name="top_10_scores_text">TOP 10 SCORES</string>
 
 </resources>

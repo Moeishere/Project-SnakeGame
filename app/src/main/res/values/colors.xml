@@ -14,6 +14,9 @@
 
     <color name="score_text_color">#E91E1E</color>
     <color name="game_paused_text">#000000</color>
+    <color name="back_button_color">#000000</color>
+
+    <color name="leaderbaord_section_color">#000000</color>
 
 
 </resources>

@@ -25,7 +25,8 @@ public class StartScreenActivity extends Activity {
 
     // Called when the "Leaderboard" text is clicked
     public void onLeaderboardClick(View view) {
-        // Code to show leaderboard
+        Intent intent = new Intent(this, LeaderboardActivity.class);
+        startActivity(intent);
     }
 
     // Called when the "Credits" text is clicked
