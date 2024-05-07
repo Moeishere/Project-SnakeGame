@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,10 +29,19 @@ public class LeaderboardActivity extends Activity {
         setContentView(R.layout.leaderboard_layout);
 
         RecyclerView leaderboardList = findViewById(R.id.leaderboard_list);
-        leaderboardList.setLayoutManager(new LinearLayoutManager(this));
+
+        // Set the RecyclerView to use a GridLayoutManager
+        int numberOfColumns = 2;  // Set this number based on your layout needs
+        leaderboardList.setLayoutManager(new GridLayoutManager(this, numberOfColumns));
 
         // Fetch the high scores
         List<Integer> highScores = getHighScores();
+        Log.d("TESTER", "onCreate: highScores: " + highScores);
+
+        // Ensure only the top 10 scores are displayed
+        if (highScores.size() > 10) {
+            highScores = highScores.subList(0, 10);
+        }
 
         LeaderboardAdapter adapter = new LeaderboardAdapter(highScores);
         leaderboardList.setAdapter(adapter);
@@ -76,8 +86,10 @@ class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.ViewHol
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Integer score = highScores.get(position); // Retrieve score from list
-        holder.rankTextView.setText(String.valueOf(position + 1));
-        holder.scoreTextView.setText(String.valueOf(highScores.get(position)));
+        String scoreText = "Score " + (position + 1) + ": " + score;
+        Log.d("TESTER", "onBindViewHolder: " + scoreText); // Add this line
+        //holder.rankTextView.setText(String.valueOf(position + 1));
+        holder.scoreTextView.setText(scoreText);
     }
 
     @Override
