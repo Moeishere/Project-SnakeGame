@@ -1,4 +1,5 @@
 package com.gamecodeschool.c17snake;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,41 +10,41 @@ import android.graphics.Point;
 import android.view.MotionEvent;
 import java.util.ArrayList;
 
-public class Snake implements GameObject, Movable, Drawable{
+public class Snake implements GameObject, Movable, Drawable {
     private static final int OUT_OF_BOUNDS = -1;
     private static final int NEW_SEGMENT_POSITION = -10;
     private static final int HALF = 2;
     private final ArrayList<Point> segmentLocations;
-    private final int mSegmentSize;
-    private final Point mMoveRange;
+    private final int segmentSize;
+    private final Point moveRange;
     private final int halfWayPoint;
     private enum Heading {UP, RIGHT, DOWN, LEFT}
     private Heading heading = Heading.RIGHT;
-    private Bitmap mBitmapHeadRight;
-    private Bitmap mBitmapHeadLeft;
-    private Bitmap mBitmapHeadUp;
-    private Bitmap mBitmapHeadDown;
-    private Bitmap mBitmapBody;
+    private Bitmap bitmapHeadRight, bitmapHeadLeft, bitmapHeadUp, bitmapHeadDown, bitmapBody;
 
-    Snake(Context context, Point mr, int ss) {
-        segmentLocations = new ArrayList<>();
-        mSegmentSize = ss;
-        mMoveRange = mr;
-        mBitmapHeadRight = BitmapFactory.decodeResource(context.getResources(), R.drawable.head);
-        mBitmapHeadLeft = BitmapFactory.decodeResource(context.getResources(), R.drawable.head);
-        mBitmapHeadUp = BitmapFactory.decodeResource(context.getResources(), R.drawable.head);
-        mBitmapHeadDown = BitmapFactory.decodeResource(context.getResources(), R.drawable.head);
-        mBitmapHeadRight = Bitmap.createScaledBitmap(mBitmapHeadRight, ss, ss, false);
+    public Snake(Context context, Point moveRange, int segmentSize) {
+        this.segmentLocations = new ArrayList<>();
+        this.segmentSize = segmentSize;
+        this.moveRange = moveRange;
+        initializeBitmaps(context, segmentSize);
+        this.halfWayPoint = moveRange.x * segmentSize / 2;
+    }
+
+    private void initializeBitmaps(Context context, int size) {
+        bitmapHeadRight = BitmapFactory.decodeResource(context.getResources(), R.drawable.head);
+        bitmapHeadRight = Bitmap.createScaledBitmap(bitmapHeadRight, size, size, false);
+        bitmapBody = BitmapFactory.decodeResource(context.getResources(), R.drawable.body);
+        bitmapBody = Bitmap.createScaledBitmap(bitmapBody, size, size, false);
+
         Matrix matrix = new Matrix();
         matrix.preScale(-1, 1);
-        mBitmapHeadLeft = Bitmap.createBitmap(mBitmapHeadRight, 0, 0, ss, ss, matrix, true);
-        matrix.preRotate(-90);
-        mBitmapHeadUp = Bitmap.createBitmap(mBitmapHeadRight, 0, 0, ss, ss, matrix, true);
-        matrix.preRotate(180);
-        mBitmapHeadDown = Bitmap.createBitmap(mBitmapHeadRight, 0, 0, ss, ss, matrix, true);
-        mBitmapBody = BitmapFactory.decodeResource(context.getResources(), R.drawable.body);
-        mBitmapBody = Bitmap.createScaledBitmap(mBitmapBody, ss, ss, false);
-        halfWayPoint = mr.x * ss / 2;
+        bitmapHeadLeft = Bitmap.createBitmap(bitmapHeadRight, 0, 0, size, size, matrix, false);
+
+        matrix.setRotate(-90);
+        bitmapHeadUp = Bitmap.createBitmap(bitmapHeadRight, 0, 0, size, size, matrix, false);
+
+        matrix.setRotate(180);
+        bitmapHeadDown = Bitmap.createBitmap(bitmapHeadRight, 0, 0, size, size, matrix, false);
     }
 
     void reset(int w, int h) {
@@ -60,8 +61,7 @@ public class Snake implements GameObject, Movable, Drawable{
 
     private void moveBody() {
         for (int i = segmentLocations.size() - 1; i > 0; i--) {
-            segmentLocations.get(i).x = segmentLocations.get(i - 1).x;
-            segmentLocations.get(i).y = segmentLocations.get(i - 1).y;
+            segmentLocations.get(i).set(segmentLocations.get(i - 1).x, segmentLocations.get(i - 1).y);
         }
     }
 
@@ -85,26 +85,27 @@ public class Snake implements GameObject, Movable, Drawable{
 
     boolean detectDeath() {
         Point head = segmentLocations.get(0);
-        return isOutOfBounds(head) || isEatingItself(head);
+        return isOutOfBounds(head) || isEatingItself();
     }
 
     private boolean isOutOfBounds(Point head) {
-        return head.x == OUT_OF_BOUNDS || head.x > mMoveRange.x || head.y == OUT_OF_BOUNDS || head.y > mMoveRange.y;
+        return head.x == OUT_OF_BOUNDS || head.x > moveRange.x || head.y == OUT_OF_BOUNDS || head.y > moveRange.y;
     }
 
-    private boolean isEatingItself(Point head) {
+    private boolean isEatingItself() {
+        Point head = segmentLocations.get(0);
         for (int i = segmentLocations.size() - 1; i > 0; i--) {
-            if (head.x == segmentLocations.get(i).x && head.y == segmentLocations.get(i).y) {
+            if (head.equals(segmentLocations.get(i))) {
                 return true;
             }
         }
         return false;
     }
 
-
     boolean checkDinner(Point l) {
-        if (segmentLocations.get(0).x == l.x && segmentLocations.get(0).y == l.y) {
-            segmentLocations.add(new Point(-10, -10));
+        Point head = segmentLocations.get(0);
+        if (head.equals(l)) {
+            segmentLocations.add(new Point(NEW_SEGMENT_POSITION, NEW_SEGMENT_POSITION));
             return true;
         }
         return false;
@@ -112,17 +113,15 @@ public class Snake implements GameObject, Movable, Drawable{
 
     boolean checkRock(Point l) {
         if (segmentLocations.size() <= 1) {
-            // If the snake has only one segment (the head), do not remove any segment
             return false;
         }
-        if (segmentLocations.get(0).x == l.x && segmentLocations.get(0).y == l.y) {
-            // Remove the last segment from the snake
+        Point head = segmentLocations.get(0);
+        if (head.equals(l)) {
             segmentLocations.remove(segmentLocations.size() - 1);
             return true;
         }
         return false;
     }
-
 
     @Override
     public void draw(Canvas canvas, Paint paint) {
@@ -133,29 +132,29 @@ public class Snake implements GameObject, Movable, Drawable{
     }
 
     private void drawHead(Canvas canvas, Paint paint) {
-        Bitmap bitmapHead;
+        Bitmap bitmapHead = null;
         switch (heading) {
             case RIGHT:
-                bitmapHead = mBitmapHeadRight;
+                bitmapHead = bitmapHeadRight;
                 break;
             case LEFT:
-                bitmapHead = mBitmapHeadLeft;
+                bitmapHead = bitmapHeadLeft;
                 break;
             case UP:
-                bitmapHead = mBitmapHeadUp;
+                bitmapHead = bitmapHeadUp;
                 break;
             case DOWN:
-                bitmapHead = mBitmapHeadDown;
+                bitmapHead = bitmapHeadDown;
                 break;
             default:
                 throw new IllegalStateException("Invalid heading: " + heading);
         }
-        canvas.drawBitmap(bitmapHead, segmentLocations.get(0).x * mSegmentSize, segmentLocations.get(0).y * mSegmentSize, paint);
+        canvas.drawBitmap(bitmapHead, segmentLocations.get(0).x * segmentSize, segmentLocations.get(0).y * segmentSize, paint);
     }
 
     private void drawBody(Canvas canvas, Paint paint) {
         for (int i = 1; i < segmentLocations.size(); i++) {
-            canvas.drawBitmap(mBitmapBody, segmentLocations.get(i).x * mSegmentSize, segmentLocations.get(i).y * mSegmentSize, paint);
+            canvas.drawBitmap(bitmapBody, segmentLocations.get(i).x * segmentSize, segmentLocations.get(i).y * segmentSize, paint);
         }
     }
 
