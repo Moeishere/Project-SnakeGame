@@ -67,4 +67,11 @@
         android:textColor="@color/credit_text_color"
         android:textSize="30sp" />
 
+    <!-- Difficulty spinner -->
+    <Spinner
+        android:id="@+id/spinnerDifficulty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"/>
+
 </RelativeLayout>

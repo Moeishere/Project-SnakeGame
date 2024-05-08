@@ -38,8 +38,9 @@ import java.lang.reflect.Type;
 
 @SuppressLint("ViewConstructor")
 public class SnakeGame extends SurfaceView implements Runnable, GameObject {
+    private Difficulty difficulty;
     private static final int NUM_BLOCKS_WIDE = 40;
-    private static final int TARGET_FPS = 10;
+    private static int TARGET_FPS = 10;
     private static final long MILLIS_PER_SECOND = 1000;
 
     private final Context mContext;
@@ -78,10 +79,13 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
     public SnakeGame(Context context, Point size) {
         super(context);
         mContext = context;
-        initializeGame(context, size);
+        int difficultyLevel = PreferencesManager.getInstance(context).getSavedDifficulty();
+
+        initializeGame(context, size, difficultyLevel);
     }
 
-    private void initializeGame(Context context, Point size) {
+    private void initializeGame(Context context, Point size, int difficultyLevel) {
+        this.difficulty = new Difficulty(difficultyLevel);
         int blockSize = size.x / NUM_BLOCKS_WIDE;
         mNumBlocksHigh = size.y / blockSize;
         initializeSoundPool(context);
@@ -186,8 +190,8 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
     }
     public void newGame() {
         mSnake.reset(NUM_BLOCKS_WIDE, mNumBlocksHigh);
-        mApple.spawn();
-        mObstacle.spawn();
+        mApple.spawn(difficulty.getAppleFrequency());
+        mObstacle.spawn(difficulty.getObstacleFrequency());
         mScore = 0;
         mNextFrameTime = System.currentTimeMillis();
         mGameJustStarted = true;
@@ -210,6 +214,7 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
 
     public boolean updateRequired() {
         if (mNextFrameTime <= System.currentTimeMillis()) {
+            TARGET_FPS = difficulty.getSpeed();
             mNextFrameTime = System.currentTimeMillis() + MILLIS_PER_SECOND / TARGET_FPS;
             return true;
         }
@@ -218,12 +223,12 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
 
     public void update() {
         mSnake.move();
-        if (mSnake.checkDinner(mApple.getLocation())) {
+        if (mSnake.checkDinner(mApple.getLocations())) {
             mApple.spawn();
             mScore = mScore + 1;
             mSP.play(mEat_ID, 1, 1, 0, 0, 1);
         }
-        if (mSnake.checkRock(mObstacle.getLocation())) {
+        if (mSnake.checkRock(mObstacle.getLocations())) {
             mObstacle.spawn();
             mScore = mScore - 1;
             mSP.play(mRockID, 1, 1, 0, 0, 1);
@@ -241,6 +246,7 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
         } else {
             stopMenuMusic();
         }
+        //adjustGameSpeedBasedOnDifficulty(difficulty.getSpeed());
     }
 
     public void draw() {
@@ -470,8 +476,8 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
         mObstacle.update(size);
         mSnake.update(size);
         mSnake.move();
-        if (mSnake.checkDinner(mApple.getLocation())) {
-            mApple.spawn();
+        if (mSnake.checkDinner(mApple.getLocations())) {
+            mApple.spawn(difficulty.getAppleFrequency());
             mScore += 1;
             mSP.play(mEat_ID, 1, 1, 0, 0, 1);
         }

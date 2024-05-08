@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.view.MotionEvent;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Snake implements GameObject, Movable, Drawable{
     private static final int OUT_OF_BOUNDS = -1;
@@ -102,24 +103,45 @@ public class Snake implements GameObject, Movable, Drawable{
     }
 
 
-    boolean checkDinner(Point l) {
+    /*boolean checkDinner(Point l) {
         if (segmentLocations.get(0).x == l.x && segmentLocations.get(0).y == l.y) {
             segmentLocations.add(new Point(-10, -10));
             return true;
         }
         return false;
+    }*/
+
+    boolean checkDinner(List<Point> apples) {
+        Point head = segmentLocations.get(0);
+        for (Point apple : apples) {
+            if (head.equals(apple)) {
+                segmentLocations.add(new Point(-10, -10));
+                apples.remove(apple);
+                return true;
+            }
+        }
+        return false;
     }
 
-    boolean checkRock(Point l) {
+    boolean checkRock(List<Point> obstacles) {
         if (segmentLocations.size() <= 1) {
             // If the snake has only one segment (the head), do not remove any segment
             return false;
         }
-        if (segmentLocations.get(0).x == l.x && segmentLocations.get(0).y == l.y) {
+        Point head = segmentLocations.get(0);
+        for (Point obstacle : obstacles) {
+            if (head.equals(obstacle)) {
+                segmentLocations.remove(segmentLocations.size() - 1);
+                return true;
+            }
+        }
+
+
+        /*if (segmentLocations.get(0).x == l.x && segmentLocations.get(0).y == l.y) {
             // Remove the last segment from the snake
             segmentLocations.remove(segmentLocations.size() - 1);
             return true;
-        }
+        }*/
         return false;
     }
 
