@@ -124,17 +124,18 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
         }
         if (mSnake.detectDeath()) {
             soundManager.stopGameMusic();
+            soundManager.stopMenuMusic();
             soundManager.playCrashSound();
             gameOver();
             mPaused = true;
             mGameStarted = false;
             saveScore(mScore);
         }
-        if (!mPlaying) {
+        /*if (!mPlaying) {
             soundManager.playMenuMusic();
         } else {
             soundManager.stopMenuMusic();
-        }
+        }*/
 
     }
 

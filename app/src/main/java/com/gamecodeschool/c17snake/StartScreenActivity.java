@@ -8,11 +8,14 @@ import android.view.View;
 
 
 public class StartScreenActivity extends Activity {
+    private GameSoundManager soundManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start_screen_layout);
+        soundManager = new GameSoundManager(this);
+        soundManager.playMenuMusic();
     }
 
     // Called when the "Play Game" text is clicked
