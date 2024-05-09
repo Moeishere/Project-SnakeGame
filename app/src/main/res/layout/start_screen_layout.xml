@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/gamebackground">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gamebackground">
 
+    <!-- Game title  -->
     <TextView
         android:id="@+id/title_text"
         android:layout_width="wrap_content"
@@ -13,17 +13,34 @@
         android:textSize="60sp"
         android:textColor="@color/title_text_color"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="130dp"
+        android:layout_marginTop="50dp"
         android:textStyle="bold" />
+
+    <!-- Difficulty selector  -->
+    <TextView
+        android:id="@+id/btnDifficulty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title_text"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="15dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:minHeight="48dp"
+        android:onClick="showDifficultyDialog"
+        android:text="@string/difficulty_text"
+        android:fontFamily="@font/button_font"
+        android:textColor="@color/play_game_text_color"
+        android:textSize="30sp" />
 
     <!-- Play Game option -->
     <TextView
         android:id="@+id/play_game"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/title_text"
+        android:layout_below="@id/btnDifficulty"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="15dp"
         android:clickable="true"
         android:focusable="true"
         android:fontFamily="@font/button_font"
@@ -40,7 +57,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/play_game"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="15dp"
         android:clickable="true"
         android:focusable="true"
         android:fontFamily="@font/button_font"
@@ -57,7 +74,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/leaderboard_button"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="15dp"
         android:clickable="true"
         android:focusable="true"
         android:fontFamily="@font/button_font"
@@ -66,12 +83,5 @@
         android:text="@string/credits"
         android:textColor="@color/credit_text_color"
         android:textSize="30sp" />
-
-    <!-- Difficulty spinner -->
-    <Spinner
-        android:id="@+id/spinnerDifficulty"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="48dp"/>
 
 </RelativeLayout>

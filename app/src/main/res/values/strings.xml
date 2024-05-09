@@ -11,5 +11,8 @@
     <string name="game_paused_text">Tap to Play</string>
     <string name="back_leaderboard_text">BACK TO MAIN MENU</string>
     <string name="top_10_scores_text">TOP 10 SCORES</string>
+    <string name="difficulty_text">GAME DIFFICULTY</string>
+    <string name="dialog_text">SELECT DIFFICULTY BELOW</string>
+
 
 </resources>

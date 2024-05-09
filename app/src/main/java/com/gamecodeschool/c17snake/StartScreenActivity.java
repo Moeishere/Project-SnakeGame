@@ -2,6 +2,7 @@ package com.gamecodeschool.c17snake;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -11,43 +12,31 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-
 public class StartScreenActivity extends Activity {
-    private GameSoundManager soundManager;
 
     public static final String PREFS_NAME = "GamePrefs";
     public static final String PREF_DIFFICULTY_KEY = "difficulty";
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start_screen_layout);
 
-
-        setupDifficultySpinner();
-
-        soundManager = new GameSoundManager(this);
+        GameSoundManager soundManager = new GameSoundManager(this);
         soundManager.playMenuMusic();
-
     }
 
-    // Called when the "Play Game" text is clicked
     public void onPlayGameClick(View view) {
-        // Intent to start SnakeActivity (or your main game activity)
         Intent intent = new Intent(this, SnakeActivity.class);
         startActivity(intent);
         finish();
     }
 
-    // Called when the "Leaderboard" text is clicked
     public void onLeaderboardClick(View view) {
         Intent intent = new Intent(this, LeaderboardActivity.class);
         startActivity(intent);
     }
 
-    // Called when the "Credits" text is clicked
     public void onCreditsClick(View view) {
         AlertDialog.Builder creditsDialog = new AlertDialog.Builder(this);
         creditsDialog.setTitle("Credits");
@@ -59,56 +48,64 @@ public class StartScreenActivity extends Activity {
                 "- Huy Tran\n" +
                 "- Kevin Esquivel\n" +
                 "- Steven Graham";
-
         creditsDialog.setMessage(message);
-        creditsDialog.setPositiveButton("OK", (dialog, id) -> {
-        });
+        creditsDialog.setPositiveButton("OK", (dialog, id) -> {});
         AlertDialog dialog = creditsDialog.create();
         dialog.show();
     }
-
-    private void setupDifficultySpinner() {
-        Spinner spinner = findViewById(R.id.spinnerDifficulty);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.difficulty_levels, android.R.layout.simple_spinner_dropdown_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    //
+    public void showDifficultyDialog(View view) {
+        // Create a new dialog instance.
+        final Dialog difficultyDialog = new Dialog(this);
+        // Set the layout for the dialog from XML.
+        difficultyDialog.setContentView(R.layout.dialog_select_difficulty);
+        // Find the spinner component within the dialog.
+        Spinner spinner = difficultyDialog.findViewById(R.id.spinnerDifficultyDialog);
+        // Create an ArrayAdapter using a custom item layout and the array of difficulty levels.
+        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(this, R.layout.
+                custom_spinner_item, getResources().getStringArray(R.array.difficulty_levels));
+        // Set the dropdown view resource for the adapter.
+        adapter.setDropDownViewResource(R.layout.custom_spinner_item);
+        // Set the adapter to the spinner.
         spinner.setAdapter(adapter);
-
+        // Set an item selected listener on the spinner to handle difficulty selection.
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            boolean userInteractionRequired = false;
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (!userInteractionRequired) {
+                    userInteractionRequired = true;
+                    return;  // Return early if this is the first automatic selection.
+                }
+                // Handle the difficulty selection.
                 handleDifficultySelection(position);
+                // Dismiss the dialog after the user has made a selection.
+                difficultyDialog.dismiss();
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
+                // This method can be left empty unless there's a need to handle cases where nothing is selected.
             }
         });
+
+        // Make the dialog cancelable by touching outside of it.
+        difficultyDialog.setCancelable(true);
+        // Display the dialog.
+        difficultyDialog.show();
     }
 
     private void handleDifficultySelection(int position) {
-        // Get a reference to the SharedPreferences
+        // Access the SharedPreferences file.
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        // Get an editor for SharedPreferences.
         SharedPreferences.Editor editor = prefs.edit();
-
-        // Save the selected difficulty position
+        // Save the selected difficulty position.
         editor.putInt(PREF_DIFFICULTY_KEY, position);
+        // Apply changes to SharedPreferences.
         editor.apply();
-        Toast.makeText(this, "Difficulty set to " + getResources().getStringArray(R.array.difficulty_levels)[position], Toast.LENGTH_SHORT).show();
+        // Display a toast message to inform the user of the selected difficulty.
+        Toast.makeText(this, "Difficulty set to " + getResources().getStringArray(R.
+                array.difficulty_levels)[position], Toast.LENGTH_SHORT).show();
     }
-    private void savePreference(String key, int value) {
-        SharedPreferences prefs = getSharedPreferences("MyPrefs", MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putInt(key, value);
-        editor.apply();
-    }
-
-    public void changeDifficulty(int newDifficulty) {
-        PreferencesManager.getInstance(getApplicationContext()).setSavedDifficulty(newDifficulty);
-    }
-
-
-
-
 }
-
