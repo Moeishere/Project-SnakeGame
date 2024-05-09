@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.view.Display;
 
 public class SnakeActivity extends Activity {
-    private SnakeGame mSnakeGame;  // Changed visibility to private for better encapsulation
+    private SnakeGame mSnakeGame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,8 +20,7 @@ public class SnakeActivity extends Activity {
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
-
-        //int level = PreferencesManager.getInstance(getApplicationContext()).getSavedDifficulty();
+        int level = PreferencesManager.getInstance(getApplicationContext()).getSavedDifficulty();
         mSnakeGame = new SnakeGame(this, size);
         setContentView(mSnakeGame);
     }
@@ -29,18 +28,17 @@ public class SnakeActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        mSnakeGame.resume();  // Delegate game-specific logic to the SnakeGame class
+        mSnakeGame.resume();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mSnakeGame.pause();  // Delegate game-specific logic to the SnakeGame class
+        mSnakeGame.pause();
     }
 
     private int getDifficultyLevel() {
         SharedPreferences prefs = getSharedPreferences("game_settings", Context.MODE_PRIVATE);
-
         return prefs.getInt("difficulty_level", 0);
     }
 

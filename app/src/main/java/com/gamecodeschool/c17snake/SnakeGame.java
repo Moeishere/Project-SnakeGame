@@ -11,15 +11,12 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Typeface;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import android.content.SharedPreferences;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -29,7 +26,6 @@ import java.lang.reflect.Type;
 public class SnakeGame extends SurfaceView implements Runnable, GameObject {
     private Difficulty difficulty;
     private static final int NUM_BLOCKS_WIDE = 40;
-    private static int TARGET_FPS = 10;
     private static final long MILLIS_PER_SECOND = 1000;
 
     private final Context mContext;
@@ -110,7 +106,7 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
 
     public boolean updateRequired() {
         if (mNextFrameTime <= System.currentTimeMillis()) {
-            TARGET_FPS = difficulty.getSpeed();
+            int TARGET_FPS = difficulty.getSpeed();
             mNextFrameTime = System.currentTimeMillis() + MILLIS_PER_SECOND / TARGET_FPS;
             return true;
         }
@@ -144,16 +140,6 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
             mGameStarted = false;
             saveScore(mScore);
         }
-        /*if (!mPlaying) {
-            soundManager.playMenuMusic();
-        } else {
-
-            stopMenuMusic();
-        }
-        //adjustGameSpeedBasedOnDifficulty(difficulty.getSpeed());
-
-            soundManager.stopMenuMusic();
-        }*/
 
     }
 
@@ -200,7 +186,7 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
             mSnake.draw(mCanvas, mPaint);
 
             if (mPaused) {
-                mPaint.setTextSize(100);
+                mPaint.setTextSize(150);
                 mCanvas.drawText(getResources().getString(R.string.game_paused_text), 750, 600, mPaint);
             }
             mSurfaceHolder.unlockCanvasAndPost(mCanvas);
@@ -268,18 +254,17 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
         int pauseButtonWidth = mPauseButtonBitmap.getWidth();
         int pauseButtonHeight = mPauseButtonBitmap.getHeight();
 
-        // Check the action of the touch event
-        if ((motionEvent.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {// If the touch event occurred within the bounds of the pause button, toggle the pause state
+        if ((motionEvent.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
             if (x >= pauseButtonX && x <= (pauseButtonX + pauseButtonWidth) && y >= pauseButtonY && y <= (pauseButtonY + pauseButtonHeight)) {
                 mPaused = !mPaused;
             }
-            // If the touch event did not occur within the bounds of the pause button, and the game has just started or is not playing, unpause the game and start a new game
+
             else if (!mGameJustStarted || !mPlaying) {
                 mPaused = false;
                 boolean mDisplayLeaderboard = false;
                 newGame();
             }
-            // If the game is not paused, change the direction of the snake based on the position of the touch event
+
             else if (!mPaused) {
                 mSnake.switchHeading(motionEvent);
             }
@@ -329,8 +314,6 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
     }
 
     private void saveScore(int mScore) {
-        // Log Scores: adding logging inside to verify that the scores are being stored.
-        Log.d("SnakeGame", "Saving score: " + mScore);
         // Load scores from SharedPreferences
         SharedPreferences sharedPreferences = mContext.getSharedPreferences("MySharedPref", Context.MODE_PRIVATE);
         Gson gson = new Gson();
