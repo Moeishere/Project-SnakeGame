@@ -4,6 +4,7 @@ public class Difficulty {
     private int speed;
     private int obstacleFrequency;
     private int appleFrequency;
+    private int eggFrequency;
 
     public Difficulty(int level) {
         switch (level) {
@@ -11,16 +12,19 @@ public class Difficulty {
                 this.speed = 5;
                 this.appleFrequency = 3;
                 this.obstacleFrequency = 1;
+                this.eggFrequency = 3;
                 break;
             case 1: // Medium
                 this.speed = 10;
                 this.appleFrequency = 2;
                 this.obstacleFrequency = 2;
+                this.eggFrequency = 2;
                 break;
             case 2: // Hard
                 this.speed = 15;
                 this.appleFrequency = 1;
                 this.obstacleFrequency = 3;
+                this.eggFrequency = 1;
                 break;
             }
     }
@@ -34,6 +38,9 @@ public class Difficulty {
     }
 
     public int getAppleFrequency() {
+        return appleFrequency;
+    }
+    public int getPotionFrequency() {
         return appleFrequency;
     }
 

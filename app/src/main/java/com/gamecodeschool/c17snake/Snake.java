@@ -115,6 +115,18 @@ public class Snake implements GameObject, Movable, Drawable {
         }
         return false;
     }
+    boolean checkPotion(List<Point> potions) {
+        Point head = segmentLocations.get(0);
+        for (Point potion : potions) {
+            if (head.equals(potion)) {
+                segmentLocations.add(new Point(-10, -10));
+                potions.remove(potion);
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     boolean checkRock(List<Point> obstacles) {
         if (segmentLocations.size() <= 1) {
