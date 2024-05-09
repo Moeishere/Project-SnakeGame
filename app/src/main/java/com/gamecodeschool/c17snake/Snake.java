@@ -9,6 +9,7 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.view.MotionEvent;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Snake implements GameObject, Movable, Drawable {
     private static final int OUT_OF_BOUNDS = -1;
@@ -102,24 +103,31 @@ public class Snake implements GameObject, Movable, Drawable {
         return false;
     }
 
-    boolean checkDinner(Point l) {
+
+    boolean checkDinner(List<Point> apples) {
         Point head = segmentLocations.get(0);
-        if (head.equals(l)) {
-            segmentLocations.add(new Point(NEW_SEGMENT_POSITION, NEW_SEGMENT_POSITION));
-            return true;
+        for (Point apple : apples) {
+            if (head.equals(apple)) {
+                segmentLocations.add(new Point(-10, -10));
+                apples.remove(apple);
+                return true;
+            }
         }
         return false;
     }
 
-    boolean checkRock(Point l) {
+    boolean checkRock(List<Point> obstacles) {
         if (segmentLocations.size() <= 1) {
             return false;
         }
         Point head = segmentLocations.get(0);
-        if (head.equals(l)) {
-            segmentLocations.remove(segmentLocations.size() - 1);
-            return true;
+        for (Point obstacle : obstacles) {
+            if (head.equals(obstacle)) {
+                segmentLocations.remove(segmentLocations.size() - 1);
+                return true;
+            }
         }
+
         return false;
     }
 
