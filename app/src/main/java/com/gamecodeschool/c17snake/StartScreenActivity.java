@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 
 public class StartScreenActivity extends Activity {
+    private GameSoundManager soundManager;
 
     public static final String PREFS_NAME = "GamePrefs";
     public static final String PREF_DIFFICULTY_KEY = "difficulty";
@@ -24,7 +25,12 @@ public class StartScreenActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start_screen_layout);
 
+
         setupDifficultySpinner();
+
+        soundManager = new GameSoundManager(this);
+        soundManager.playMenuMusic();
+
     }
 
     // Called when the "Play Game" text is clicked
