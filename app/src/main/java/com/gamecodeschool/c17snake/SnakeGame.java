@@ -53,6 +53,7 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
     private final ArrayList<Integer> scores = new ArrayList<>();
 
     private final GameSoundManager soundManager;
+    private final ScoreManager scoreManager;
 
     public SnakeGame(Context context, Point size) {
         super(context);
@@ -62,6 +63,7 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
 
         initializeGame(context, size, difficultyLevel);
         soundManager = new GameSoundManager(context);
+        scoreManager = new ScoreManager(context);
 
     }
 
@@ -331,31 +333,8 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
         }
     }
 
-    private void saveScore(int mScore) {
-        // Load scores from SharedPreferences
-        SharedPreferences sharedPreferences = mContext.getSharedPreferences("MySharedPref", Context.MODE_PRIVATE);
-        Gson gson = new Gson();
-        String json = sharedPreferences.getString("scores", null);
-        Type type = new TypeToken<ArrayList<Integer>>() {}.getType();
-        List<Integer> scores = gson.fromJson(json, type);
-        // Initialize scores list if null
-        if (scores == null) {
-            scores = new ArrayList<>();
-        }
-        // Add the new score
-        if (mScore > 0) {
-            scores.add(mScore);
-        }
-        // Sort and keep the top 10 scores
-        scores.sort(Collections.reverseOrder());
-        if (scores.size() > 10) {
-            scores = scores.subList(0, 10);
-        }
-        // Save scores to SharedPreferences
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        json = gson.toJson(scores);
-        editor.putString("scores", json);
-        editor.apply();
+    private void saveScore(int score) {
+        scoreManager.saveScore(score);
     }
-
 }
+
