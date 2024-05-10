@@ -49,7 +49,7 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
     private volatile boolean mGameJustStarted = false;
     private boolean mGameOver = false;
 
-    // testing vars
+
     private final ArrayList<Integer> scores = new ArrayList<>();
 
     private final GameSoundManager soundManager;
@@ -131,7 +131,10 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
         if (mSnake.checkRock(mObstacle.getLocations())) {
             soundManager.playRockSound();
             mObstacle.spawn();
-            mScore -= 1;
+            // Deduct points only if not immune
+            if (!mSnake.isImmune()) {
+                mScore -= 1;
+            }
         }
         if (mSnake.checkPotion(mPotion.getLocations())) {
             soundManager.playEatSound();

@@ -30,6 +30,9 @@ public class Snake implements GameObject, Movable, Drawable {
     private long transparentEndTime = 0;
     private int randomPotionScore = 0;
 
+    private long immunityEndTime = 0;
+    private boolean isImmune = false;
+
 
     public Snake(Context context, Point moveRange, int segmentSize) {
         this.segmentLocations = new ArrayList<>();
@@ -102,7 +105,7 @@ public class Snake implements GameObject, Movable, Drawable {
 
     boolean detectDeath() {
         Point head = segmentLocations.get(0);
-        return isOutOfBounds(head) || isEatingItself();
+        return isOutOfBounds(head) || (!isTransparent && isEatingItself());
     }
 
     private boolean isOutOfBounds(Point head) {
@@ -143,6 +146,11 @@ public class Snake implements GameObject, Movable, Drawable {
                 // Generate a random score between 1 and 5
                 Random random = new Random();
                 randomPotionScore = random.nextInt(5) + 1;
+
+                // Set immunity for 10 seconds
+                isImmune = true;
+                immunityEndTime = System.currentTimeMillis() + 10000; // 10 seconds duration
+
                 return true;
             }
         }
@@ -154,13 +162,17 @@ public class Snake implements GameObject, Movable, Drawable {
         if (segmentLocations.size() <= 1) {
             return false;
         }
+
         Point head = segmentLocations.get(0);
         for (Point obstacle : obstacles) {
             if (head.equals(obstacle)) {
-                segmentLocations.remove(segmentLocations.size() - 1);
+                if (!isImmune) {
+                    segmentLocations.remove(segmentLocations.size() - 1); // Deduct a segment
+                }
                 return true;
             }
         }
+
 
         return false;
     }
@@ -245,6 +257,9 @@ public class Snake implements GameObject, Movable, Drawable {
         }
     }
 
+    public boolean isImmune() {
+        return isImmune;
+    }
 
     public int getRandomPotionScore() {
         return randomPotionScore;
@@ -256,6 +271,9 @@ public class Snake implements GameObject, Movable, Drawable {
     public void update(Point size) {
         if (isTransparent && System.currentTimeMillis() > transparentEndTime) {
             isTransparent = false; // Revert transparency
+        }
+        if (isImmune && System.currentTimeMillis() > immunityEndTime) {
+            isImmune = false; // Revert immunity
         }
     }
 }
