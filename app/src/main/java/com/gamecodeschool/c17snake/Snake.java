@@ -4,12 +4,14 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.view.MotionEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Snake implements GameObject, Movable, Drawable {
     private static final int OUT_OF_BOUNDS = -1;
@@ -23,6 +25,12 @@ public class Snake implements GameObject, Movable, Drawable {
     private Heading heading = Heading.RIGHT;
     private Bitmap bitmapHeadRight, bitmapHeadLeft, bitmapHeadUp, bitmapHeadDown, bitmapBody;
 
+    private Bitmap bitmapHeadTransparent;
+    private Bitmap bitmapBodyTransparent;
+    private boolean isTransparent = false;
+    private long transparentEndTime = 0;
+
+
     public Snake(Context context, Point moveRange, int segmentSize) {
         this.segmentLocations = new ArrayList<>();
         this.segmentSize = segmentSize;
@@ -32,10 +40,18 @@ public class Snake implements GameObject, Movable, Drawable {
     }
 
     private void initializeBitmaps(Context context, int size) {
+        // Regular head and body
         bitmapHeadRight = BitmapFactory.decodeResource(context.getResources(), R.drawable.head);
         bitmapHeadRight = Bitmap.createScaledBitmap(bitmapHeadRight, size, size, false);
         bitmapBody = BitmapFactory.decodeResource(context.getResources(), R.drawable.body);
         bitmapBody = Bitmap.createScaledBitmap(bitmapBody, size, size, false);
+
+        // Transparent head and body
+        bitmapHeadTransparent = BitmapFactory.decodeResource(context.getResources(), R.drawable.head_transparent);
+        bitmapHeadTransparent = Bitmap.createScaledBitmap(bitmapHeadTransparent, size, size, false);
+        bitmapBodyTransparent = BitmapFactory.decodeResource(context.getResources(), R.drawable.body_transparent);
+        bitmapBodyTransparent = Bitmap.createScaledBitmap(bitmapBodyTransparent, size, size, false);
+
 
         Matrix matrix = new Matrix();
         matrix.preScale(-1, 1);
@@ -115,6 +131,20 @@ public class Snake implements GameObject, Movable, Drawable {
         }
         return false;
     }
+    boolean checkPotion(List<Point> potions) {
+        Point head = segmentLocations.get(0);
+        for (Point potion : potions) {
+            if (head.equals(potion)) {
+                segmentLocations.add(new Point(-10, -10));
+                potions.remove(potion);
+                isTransparent = true; // Change the flag when potion is collected
+                transparentEndTime = System.currentTimeMillis() + 5000; // 5 seconds duration
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     boolean checkRock(List<Point> obstacles) {
         if (segmentLocations.size() <= 1) {
@@ -140,29 +170,40 @@ public class Snake implements GameObject, Movable, Drawable {
     }
 
     private void drawHead(Canvas canvas, Paint paint) {
+        Point headLocation = segmentLocations.get(0);
+        float left = headLocation.x * segmentSize;
+        float top = headLocation.y * segmentSize;
         Bitmap bitmapHead = null;
-        switch (heading) {
-            case RIGHT:
-                bitmapHead = bitmapHeadRight;
-                break;
-            case LEFT:
-                bitmapHead = bitmapHeadLeft;
-                break;
-            case UP:
-                bitmapHead = bitmapHeadUp;
-                break;
-            case DOWN:
-                bitmapHead = bitmapHeadDown;
-                break;
-            default:
-                throw new IllegalStateException("Invalid heading: " + heading);
+        if (isTransparent) {
+            bitmapHead = bitmapHeadTransparent;
+        } else {
+            switch (heading) {
+                case RIGHT:
+                    bitmapHead = bitmapHeadRight;
+                    break;
+                case LEFT:
+                    bitmapHead = bitmapHeadLeft;
+                    break;
+                case UP:
+                    bitmapHead = bitmapHeadUp;
+                    break;
+                case DOWN:
+                    bitmapHead = bitmapHeadDown;
+                    break;
+                default:
+                    throw new IllegalStateException("Invalid heading: " + heading);
+            }
         }
-        canvas.drawBitmap(bitmapHead, segmentLocations.get(0).x * segmentSize, segmentLocations.get(0).y * segmentSize, paint);
+        canvas.drawBitmap(bitmapHead, left, top, paint);
     }
 
     private void drawBody(Canvas canvas, Paint paint) {
+        Bitmap bodyBitmap = isTransparent ? bitmapBodyTransparent : bitmapBody;
         for (int i = 1; i < segmentLocations.size(); i++) {
-            canvas.drawBitmap(bitmapBody, segmentLocations.get(i).x * segmentSize, segmentLocations.get(i).y * segmentSize, paint);
+            Point segmentLocation = segmentLocations.get(i);
+            float left = segmentLocation.x * segmentSize;
+            float top = segmentLocation.y * segmentSize;
+            canvas.drawBitmap(bodyBitmap, left, top, paint);
         }
     }
 
@@ -200,6 +241,20 @@ public class Snake implements GameObject, Movable, Drawable {
         }
     }
 
+
+
+
+    private int getRandomColor() {
+        Random random = new Random();
+        return Color.rgb(random.nextInt(256), random.nextInt(256), random.nextInt(256));
+    }
+
+
+
     @Override
-    public void update(Point size) {}
+    public void update(Point size) {
+        if (isTransparent && System.currentTimeMillis() > transparentEndTime) {
+            isTransparent = false; // Revert transparency
+        }
+    }
 }

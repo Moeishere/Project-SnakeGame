@@ -44,6 +44,7 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
     private Snake mSnake;
     private Apple mApple;
     private Obstacle mObstacle;
+    private Potion mPotion;
     private boolean mGameStarted = false;
     private volatile boolean mGameJustStarted = false;
     private boolean mGameOver = false;
@@ -72,6 +73,7 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
         mPaint = new Paint();
         mApple = new Apple(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
         mObstacle = new Obstacle(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
+        mPotion = new Potion(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
         mSnake = new Snake(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
         mPauseButtonBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.pause_button);
         mPauseButtonBitmap = Bitmap.createScaledBitmap(mPauseButtonBitmap, 100, 100, false);
@@ -85,6 +87,7 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
         mSnake.reset(NUM_BLOCKS_WIDE, mNumBlocksHigh);
         mApple.spawn(difficulty.getAppleFrequency());
         mObstacle.spawn(difficulty.getObstacleFrequency());
+        mPotion.spawn(difficulty.getPotionFrequency());
         mScore = 0;
         mNextFrameTime = System.currentTimeMillis();
         mGameJustStarted = true;
@@ -116,21 +119,26 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
     public void update() {
         mSnake.move();
 
+        // Update the snake to handle transparency timing
+        mSnake.update(new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh));
+
         if (mSnake.checkDinner(mApple.getLocations())) {
-
             soundManager.playEatSound();
-
             mApple.spawn();
             mScore += 1;
         }
 
         if (mSnake.checkRock(mObstacle.getLocations())) {
-
             soundManager.playRockSound();
-
             mObstacle.spawn();
             mScore -= 1;
         }
+        if (mSnake.checkPotion(mPotion.getLocations())) {
+            soundManager.playEatSound();
+            mPotion.spawn();
+            mScore += 2;
+        }
+
         if (mSnake.detectDeath()) {
             soundManager.stopGameMusic();
             soundManager.stopMenuMusic();
@@ -183,6 +191,7 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
             mPaint.setFakeBoldText(false);
             mApple.draw(mCanvas, mPaint);
             mObstacle.draw(mCanvas, mPaint);
+            mPotion.draw(mCanvas, mPaint);
             mSnake.draw(mCanvas, mPaint);
 
             if (mPaused) {
@@ -293,6 +302,7 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
         mApple.draw(canvas, paint);
         mObstacle.draw(canvas, paint);
         mSnake.draw(canvas, paint);
+        mPotion.draw(canvas, paint);
     }
 
     @Override
@@ -301,11 +311,16 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
         mNumBlocksHigh = size.y / blockSize;
         mApple.update(size);
         mObstacle.update(size);
+        mPotion.update(size);
         mSnake.update(size);
         mSnake.move();
         if (mSnake.checkDinner(mApple.getLocations())) {
             mApple.spawn(difficulty.getAppleFrequency());
             mScore += 1;
+        }
+        if (mSnake.checkPotion(mPotion.getLocations())) {
+            mPotion.spawn(difficulty.getPotionFrequency());
+            mScore += 2;
         }
 
         if (mSnake.detectDeath()) {
