@@ -6,6 +6,7 @@ public class Difficulty {
     private int appleFrequency;
     private int potionFrequency;
 
+
     public Difficulty(int level) {
         switch (level) {
             case 0: // Easy

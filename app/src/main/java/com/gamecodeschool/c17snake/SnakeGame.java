@@ -119,25 +119,22 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
     public void update() {
         mSnake.move();
 
+        // Update the snake to handle transparency timing
+        mSnake.update(new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh));
+
         if (mSnake.checkDinner(mApple.getLocations())) {
-
             soundManager.playEatSound();
-
             mApple.spawn();
             mScore += 1;
         }
 
         if (mSnake.checkRock(mObstacle.getLocations())) {
-
             soundManager.playRockSound();
-
             mObstacle.spawn();
             mScore -= 1;
         }
         if (mSnake.checkPotion(mPotion.getLocations())) {
-
             soundManager.playEatSound();
-
             mPotion.spawn();
             mScore += 2;
         }
