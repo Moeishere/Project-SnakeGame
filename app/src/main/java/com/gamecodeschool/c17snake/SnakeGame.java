@@ -136,7 +136,7 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
         if (mSnake.checkPotion(mPotion.getLocations())) {
             soundManager.playEatSound();
             mPotion.spawn();
-            mScore += 2;
+            mScore += mSnake.getRandomPotionScore(); // Add the random score
         }
 
         if (mSnake.detectDeath()) {

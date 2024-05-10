@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
@@ -29,6 +28,7 @@ public class Snake implements GameObject, Movable, Drawable {
     private Bitmap bitmapBodyTransparent;
     private boolean isTransparent = false;
     private long transparentEndTime = 0;
+    private int randomPotionScore = 0;
 
 
     public Snake(Context context, Point moveRange, int segmentSize) {
@@ -139,6 +139,10 @@ public class Snake implements GameObject, Movable, Drawable {
                 potions.remove(potion);
                 isTransparent = true; // Change the flag when potion is collected
                 transparentEndTime = System.currentTimeMillis() + 5000; // 5 seconds duration
+
+                // Generate a random score between 1 and 5
+                Random random = new Random();
+                randomPotionScore = random.nextInt(5) + 1;
                 return true;
             }
         }
@@ -242,11 +246,8 @@ public class Snake implements GameObject, Movable, Drawable {
     }
 
 
-
-
-    private int getRandomColor() {
-        Random random = new Random();
-        return Color.rgb(random.nextInt(256), random.nextInt(256), random.nextInt(256));
+    public int getRandomPotionScore() {
+        return randomPotionScore;
     }
 
 
