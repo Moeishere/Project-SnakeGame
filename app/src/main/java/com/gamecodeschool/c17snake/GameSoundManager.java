@@ -13,6 +13,7 @@ public class GameSoundManager {
     private MediaPlayer menuMediaPlayer, gameMediaPlayer;
     private final Context context;
     private int eatSoundId = -1;
+    private int drinkSoundId = -1;
     private int crashSoundId = -1;
     private int rockSoundId = -1;
 
@@ -36,8 +37,10 @@ public class GameSoundManager {
 
     private void loadSoundEffects() {
         eatSoundId = loadSound("snake_eat.mp3");
+        drinkSoundId = loadSound("snake_drink.mp3");
         crashSoundId = loadSound("snake_death.mp3");
         rockSoundId = loadSound("rock_destroy.mp3");
+
     }
 
     private int loadSound(String fileName) {
@@ -80,6 +83,9 @@ public class GameSoundManager {
 
     public void playEatSound() {
         soundPool.play(eatSoundId, 1, 1, 0, 0, 1);
+    }
+    public void playDrinkSound() {
+        soundPool.play(drinkSoundId, 1, 1, 0, 0, 1);
     }
 
     public void playCrashSound() {

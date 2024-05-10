@@ -140,16 +140,23 @@ public class Snake implements GameObject, Movable, Drawable {
             if (head.equals(potion)) {
                 segmentLocations.add(new Point(-10, -10));
                 potions.remove(potion);
-                isTransparent = true; // Change the flag when potion is collected
-                transparentEndTime = System.currentTimeMillis() + 5000; // 5 seconds duration
 
-                // Generate a random score between 1 and 5
                 Random random = new Random();
-                randomPotionScore = random.nextInt(5) + 1;
-
-                // Set immunity for 10 seconds
-                isImmune = true;
-                immunityEndTime = System.currentTimeMillis() + 10000; // 10 seconds duration
+                int effect = random.nextInt(3); // Randomly selects 0, 1, or 2
+                switch (effect) {
+                    case 0:     // Trigger randomPotionScore
+                        randomPotionScore = random.nextInt(5) + 1;
+                       // mScore += randomPotionScore;
+                        break;
+                    case 1: // Trigger isImmune
+                        isImmune = true;
+                        immunityEndTime = System.currentTimeMillis() + 10000; // 10 seconds duration
+                        break;
+                    case 2: // Trigger isTransparent
+                        isTransparent = true;
+                        transparentEndTime = System.currentTimeMillis() + 5000; // 5 seconds duration
+                        break;
+                }
 
                 return true;
             }
