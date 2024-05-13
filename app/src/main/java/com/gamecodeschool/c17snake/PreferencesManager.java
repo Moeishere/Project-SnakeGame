@@ -5,8 +5,7 @@ import android.content.SharedPreferences;
 
 public class PreferencesManager {
     private static PreferencesManager instance;
-    private SharedPreferences sharedPreferences;
-
+    private final SharedPreferences sharedPreferences;
     private static final String PREFS_NAME = "GamePrefs";
 
     private PreferencesManager(Context context) {

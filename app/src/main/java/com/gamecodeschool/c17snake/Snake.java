@@ -23,16 +23,13 @@ public class Snake implements GameObject, Movable, Drawable {
     private enum Heading {UP, RIGHT, DOWN, LEFT}
     private Heading heading = Heading.RIGHT;
     private Bitmap bitmapHeadRight, bitmapHeadLeft, bitmapHeadUp, bitmapHeadDown, bitmapBody;
-
     private Bitmap bitmapHeadTransparent;
     private Bitmap bitmapBodyTransparent;
     private boolean isTransparent = false;
     private long transparentEndTime = 0;
     private int randomPotionScore = 0;
-
     private long immunityEndTime = 0;
     private boolean isImmune = false;
-
 
     public Snake(Context context, Point moveRange, int segmentSize) {
         this.segmentLocations = new ArrayList<>();
@@ -41,7 +38,6 @@ public class Snake implements GameObject, Movable, Drawable {
         initializeBitmaps(context, segmentSize);
         this.halfWayPoint = moveRange.x * segmentSize / 2;
     }
-
     private void initializeBitmaps(Context context, int size) {
         // Regular head and body
         bitmapHeadRight = BitmapFactory.decodeResource(context.getResources(), R.drawable.head);
@@ -54,15 +50,11 @@ public class Snake implements GameObject, Movable, Drawable {
         bitmapHeadTransparent = Bitmap.createScaledBitmap(bitmapHeadTransparent, size, size, false);
         bitmapBodyTransparent = BitmapFactory.decodeResource(context.getResources(), R.drawable.body_transparent);
         bitmapBodyTransparent = Bitmap.createScaledBitmap(bitmapBodyTransparent, size, size, false);
-
-
         Matrix matrix = new Matrix();
         matrix.preScale(-1, 1);
         bitmapHeadLeft = Bitmap.createBitmap(bitmapHeadRight, 0, 0, size, size, matrix, false);
-
         matrix.setRotate(-90);
         bitmapHeadUp = Bitmap.createBitmap(bitmapHeadRight, 0, 0, size, size, matrix, false);
-
         matrix.setRotate(180);
         bitmapHeadDown = Bitmap.createBitmap(bitmapHeadRight, 0, 0, size, size, matrix, false);
     }
@@ -122,7 +114,6 @@ public class Snake implements GameObject, Movable, Drawable {
         return false;
     }
 
-
     boolean checkDinner(List<Point> apples) {
         Point head = segmentLocations.get(0);
         for (Point apple : apples) {
@@ -134,6 +125,7 @@ public class Snake implements GameObject, Movable, Drawable {
         }
         return false;
     }
+
     boolean checkPotion(List<Point> potions) {
         Point head = segmentLocations.get(0);
         for (Point potion : potions) {
@@ -157,13 +149,11 @@ public class Snake implements GameObject, Movable, Drawable {
                         transparentEndTime = System.currentTimeMillis() + 5000; // 5 seconds duration
                         break;
                 }
-
                 return true;
             }
         }
         return false;
     }
-
 
     boolean checkRock(List<Point> obstacles) {
         if (segmentLocations.size() <= 1) {
@@ -179,8 +169,6 @@ public class Snake implements GameObject, Movable, Drawable {
                 return true;
             }
         }
-
-
         return false;
     }
 
@@ -271,8 +259,6 @@ public class Snake implements GameObject, Movable, Drawable {
     public int getRandomPotionScore() {
         return randomPotionScore;
     }
-
-
 
     @Override
     public void update(Point size) {

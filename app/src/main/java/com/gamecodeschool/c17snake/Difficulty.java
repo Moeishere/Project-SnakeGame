@@ -5,8 +5,6 @@ public class Difficulty {
     private int obstacleFrequency;
     private int appleFrequency;
     private int potionFrequency;
-
-
     public Difficulty(int level) {
         switch (level) {
             case 0: // Easy
@@ -33,11 +31,9 @@ public class Difficulty {
     public int getSpeed() {
         return speed;
     }
-
     public int getObstacleFrequency() {
         return obstacleFrequency;
     }
-
     public int getAppleFrequency() {
         return appleFrequency;
     }

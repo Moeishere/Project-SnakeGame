@@ -10,13 +10,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,7 +25,6 @@ public class LeaderboardActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.leaderboard_layout);
-
         RecyclerView leaderboardList = findViewById(R.id.leaderboard_list);
 
         // Set the RecyclerView to use a GridLayoutManager
@@ -42,13 +39,11 @@ public class LeaderboardActivity extends Activity {
         if (highScores.size() > 10) {
             highScores = highScores.subList(0, 10);
         }
-
         LeaderboardAdapter adapter = new LeaderboardAdapter(highScores);
         leaderboardList.setAdapter(adapter);
     }
     public void goBackToStartScreen(View view) {
         // Finishes this activity and returns to the previous one
-
         finish();
     }
     private List<Integer> getHighScores() {
@@ -64,7 +59,7 @@ public class LeaderboardActivity extends Activity {
         // Log Scores: adding logging inside to verify that the scores are being stored.
         Log.d("SnakeGame", "Loaded scores: " + scores);
         // Sort scores in descending order
-        Collections.sort(scores, Collections.reverseOrder());
+        scores.sort(Collections.reverseOrder());
         return scores;
     }
 }
@@ -77,6 +72,7 @@ class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.ViewHol
         this.highScores = highScores;
     }
 
+    @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.leaderboard_item, parent, false);
@@ -91,13 +87,11 @@ class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.ViewHol
         //holder.rankTextView.setText(String.valueOf(position + 1));
         holder.scoreTextView.setText(scoreText);
     }
-
     @Override
     public int getItemCount() {
         return highScores.size();
     }
-
-    class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
         TextView rankTextView, scoreTextView;
 
         public ViewHolder(View itemView) {

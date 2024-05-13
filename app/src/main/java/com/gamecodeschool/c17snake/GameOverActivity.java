@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.widget.TextView;
 
 public class GameOverActivity extends Activity {
-
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {

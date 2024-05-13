@@ -8,15 +8,12 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 public class ScoreManager {
     private static final String SCORES_KEY = "scores";
     private final SharedPreferences sharedPreferences;
-
     public ScoreManager(Context context) {
         sharedPreferences = context.getSharedPreferences("MySharedPref", Context.MODE_PRIVATE);
     }
-
     public void saveScore(int score) {
         List<Integer> scores = loadScores();
         if (score > 0) {

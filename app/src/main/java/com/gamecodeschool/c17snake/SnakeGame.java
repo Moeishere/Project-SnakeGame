@@ -15,24 +15,15 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import android.content.SharedPreferences;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import java.lang.reflect.Type;
 
 @SuppressLint("ViewConstructor")
 public class SnakeGame extends SurfaceView implements Runnable, GameObject {
     private Difficulty difficulty;
     private static final int NUM_BLOCKS_WIDE = 40;
     private static final long MILLIS_PER_SECOND = 1000;
-
-    private final Context mContext;
     private Bitmap backgroundBitmap;
     private Bitmap mPauseButtonBitmap;
     private Bitmap munPauseButtonBitmap;
-
     private Thread mThread = null;
     private long mNextFrameTime;
     private volatile boolean mPlaying = false;
@@ -57,7 +48,6 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
 
     public SnakeGame(Context context, Point size) {
         super(context);
-        mContext = context;
 
         int difficultyLevel = PreferencesManager.getInstance(context).getSavedDifficulty();
 
@@ -174,7 +164,6 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
             Bitmap originalBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.gamebackground);
             Bitmap scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, canvasWidth, canvasHeight, true);
             mCanvas.drawBitmap(scaledBitmap, 0, 0, null);
-
             int x = mCanvas.getWidth() - mPauseButtonBitmap.getWidth() - 20; // 20 pixels from the right
             int y = 20; // 20 pixels from the top
 
@@ -248,7 +237,6 @@ public class SnakeGame extends SurfaceView implements Runnable, GameObject {
         if (isGameOver()) {
             return true;
         }
-
         if (mPaused && !mGameStarted) {
             mGameStarted = true;
             if (mGameJustStarted) {

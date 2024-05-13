@@ -13,10 +13,10 @@ import java.util.Random;
 
 public class Apple implements GameObject, Drawable {
     private static final int OFF_SCREEN_X = -10;
-    private List<Point> locations;
-    private Point location = new Point();
-    private Point mSpawnRange;
-    private int mSize;
+    private final List<Point> locations;
+    private final Point location = new Point();
+    private final Point mSpawnRange;
+    private final int mSize;
     private Bitmap mBitmapApple;
 
     Apple(Context context, Point sr, int s){
@@ -28,20 +28,12 @@ public class Apple implements GameObject, Drawable {
         mBitmapApple = Bitmap.createScaledBitmap(mBitmapApple, s, s, false);
     }
 
-    /*public void spawn(){
-        Random random = new Random();
-        location.x = random.nextInt(mSpawnRange.x) + 1;
-        location.y = random.nextInt(mSpawnRange.y - 1) + 1;
-    }*/
     public void spawn(){
         Random random = new Random();
 
         int x = random.nextInt(mSpawnRange.x) + 1;
         int y = random.nextInt(mSpawnRange.y - 1) + 1;
         locations.add(new Point(x, y));
-
-
-
     }
     public void spawn(int appleFrequency){
         Random random = new Random();
@@ -49,9 +41,7 @@ public class Apple implements GameObject, Drawable {
             int x = random.nextInt(mSpawnRange.x) + 1;
             int y = random.nextInt(mSpawnRange.y - 1) + 1;
             locations.add(new Point(x, y));
-
         }
-
     }
 
     public Point getLocation(){
@@ -60,7 +50,7 @@ public class Apple implements GameObject, Drawable {
 
     @Override
     public void draw(Canvas canvas, Paint paint) {
-        if (mBitmapApple != null && location != null) {
+        if (mBitmapApple != null) {
             for (Point location : locations){
                 canvas.drawBitmap(mBitmapApple, location.x * mSize, location.y * mSize, null);
             }

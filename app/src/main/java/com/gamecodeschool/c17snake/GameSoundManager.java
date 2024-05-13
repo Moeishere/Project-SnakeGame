@@ -22,7 +22,6 @@ public class GameSoundManager {
         initializeSoundPool();
         initializeMediaPlayers();
     }
-
     private void initializeSoundPool() {
         AudioAttributes audioAttributes = new AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_GAME)
@@ -34,15 +33,12 @@ public class GameSoundManager {
                 .build();
         loadSoundEffects();
     }
-
     private void loadSoundEffects() {
         eatSoundId = loadSound("snake_eat.mp3");
         drinkSoundId = loadSound("snake_drink.mp3");
         crashSoundId = loadSound("snake_death.mp3");
         rockSoundId = loadSound("rock_destroy.mp3");
-
     }
-
     private int loadSound(String fileName) {
         AssetFileDescriptor descriptor = null;
         try {
@@ -61,12 +57,10 @@ public class GameSoundManager {
             }
         }
     }
-
     private void initializeMediaPlayers() {
         menuMediaPlayer = createMediaPlayer("menu_music.mp3");
         gameMediaPlayer = createMediaPlayer("ingame_music.mp3");
     }
-
     private MediaPlayer createMediaPlayer(String fileName) {
         MediaPlayer mediaPlayer = new MediaPlayer();
         try {
@@ -80,46 +74,38 @@ public class GameSoundManager {
         }
         return mediaPlayer;
     }
-
     public void playEatSound() {
         soundPool.play(eatSoundId, 1, 1, 0, 0, 1);
     }
     public void playDrinkSound() {
         soundPool.play(drinkSoundId, 1, 1, 0, 0, 1);
     }
-
     public void playCrashSound() {
         soundPool.play(crashSoundId, 1, 1, 0, 0, 1);
     }
-
     public void playRockSound() {
         soundPool.play(rockSoundId, 1, 1, 0, 0, 1);
     }
-
     public void playMenuMusic() {
         if (!menuMediaPlayer.isPlaying()) {
             menuMediaPlayer.start();
         }
     }
-
     public void stopMenuMusic() {
         if (menuMediaPlayer.isPlaying()) {
             menuMediaPlayer.pause();
         }
     }
-
     public void playGameMusic() {
         if (!gameMediaPlayer.isPlaying()) {
             gameMediaPlayer.start();
         }
     }
-
     public void stopGameMusic() {
         if (gameMediaPlayer.isPlaying()) {
             gameMediaPlayer.pause();
         }
     }
-
     public void releaseResources() {
         soundPool.release();
         menuMediaPlayer.release();
