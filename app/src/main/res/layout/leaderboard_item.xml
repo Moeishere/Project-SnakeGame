@@ -1,30 +1,27 @@
-<!-- leaderboard_item.xml -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:gravity="center_horizontal"
-    android:padding="8dp">
+    android:padding="2dp"
+    android:paddingBottom="2dp">
 
     <TextView
         android:id="@+id/rank_text"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:fontFamily="@font/game_title_font"
         android:textStyle="bold"
         android:textSize="18sp"
-        android:gravity="center"
-        android:fontFamily="@font/button_font" />
+        android:gravity="center" />
 
     <TextView
         android:id="@+id/score_text"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:fontFamily="@font/game_title_font"
         android:textSize="26sp"
         android:gravity="center"
         android:textStyle="bold"
-        android:fontFamily="@font/button_font"
-        android:layout_gravity="center_horizontal"
         android:textColor="@color/leaderbaord_section_color"/>
 </LinearLayout>
